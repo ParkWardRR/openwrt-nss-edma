@@ -2,11 +2,12 @@
 /*
  * EnGenius EWS377AP v3  (Qualcomm IPQ8072A, board "ap-hk07")
  *
- * SCAFFOLD — derived from ipq8072-eap660hd-v1.dts (TP-Link EAP660 HD v1),
- * the closest in-tree IPQ8072 4x4 AP. Values marked TODO(extract) are
- * INHERITED PLACEHOLDERS and MUST be verified against the OEM device tree
- * pulled off real hardware (see UART/firmware extraction plan) before this
- * boots reliably. Do not treat this as validated.
+ * Base structure derived from ipq8072-eap660hd-v1.dts (TP-Link EAP660 HD v1),
+ * the closest in-tree IPQ8072 4x4 AP. GPIO/LED/PHY values below marked
+ * "CONFIRMED (OEM hk07 DTB)" were transcribed from the vendor device tree
+ * fdt@hk07 (default config) extracted from stock firmware EWS377-FIT 1.1.30
+ * — model "Qualcomm IPQ807x/AP-HK07". Values still marked TODO(extract)
+ * need the running unit / UART. Not yet flash-validated.
  */
 
 /dts-v1/;
@@ -25,10 +26,10 @@
 
 	aliases {
 		serial0 = &blsp1_uart5;
-		led-boot = &led_status;
-		led-failsafe = &led_status;
-		led-running = &led_status;
-		led-upgrade = &led_status;
+		led-boot = &led_blue;
+		led-failsafe = &led_red;
+		led-running = &led_blue;
+		led-upgrade = &led_green;
 	};
 
 	chosen {
@@ -39,26 +40,37 @@
 	keys {
 		compatible = "gpio-keys";
 
-		/* TODO(extract): confirm reset-button GPIO from OEM DTS */
+		/* CONFIRMED (OEM hk07 DTB): reset on GPIO52, active-low */
 		reset {
 			label = "reset";
-			gpios = <&tlmm 50 GPIO_ACTIVE_LOW>;
+			gpios = <&tlmm 52 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
 		};
 	};
 
+	/*
+	 * CONFIRMED (OEM hk07 DTB): single RGB status LED, active-high, on
+	 * GPIO54 (R) / GPIO55 (G) / GPIO56 (B). Vendor labels: led_r/led_g/led_b.
+	 */
 	leds {
 		compatible = "gpio-leds";
 
-		/*
-		 * TODO(extract): EWS377AP v3 has multiple status LEDs (power +
-		 * per-band). Only a single status LED is scaffolded here; map the
-		 * real GPIOs/colors from the OEM DTS + /sys/class/leds.
-		 */
-		led_status: status {
+		led_red: led-red {
 			function = LED_FUNCTION_STATUS;
-			gpios = <&tlmm 42 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_RED>;
+			gpios = <&tlmm 54 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_green: led-green {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&tlmm 55 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_blue: led-blue {
+			function = LED_FUNCTION_STATUS;
 			color = <LED_COLOR_ID_BLUE>;
+			gpios = <&tlmm 56 GPIO_ACTIVE_HIGH>;
 		};
 	};
 };
@@ -89,14 +101,21 @@
 	status = "okay";
 	pinctrl-0 = <&mdio_pins>;
 	pinctrl-names = "default";
-	/* TODO(extract): confirm PHY reset GPIO */
-	reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
+	/*
+	 * CONFIRMED (OEM hk07 DTB): phy-reset-gpio = GPIO43 (active-high) +
+	 * GPIO44 (active-low). QSDK drives both; mainline resets the bus once,
+	 * so assert the primary line. TODO(validate): confirm on hardware that
+	 * a single reset on GPIO43 brings all PHYs up.
+	 */
+	reset-gpios = <&tlmm 43 GPIO_ACTIVE_HIGH>;
 
 	/*
-	 * TODO(extract): EWS377AP v3 uplink is a single 2.5GbE PoE port.
-	 * Confirm the PHY model + MDIO address from the OEM DTS. EAP660HD uses
-	 * a QCA8081 at addr 28; the EWS377 is the same reference-design class
-	 * but the address must be verified.
+	 * CONFIRMED (OEM hk07 DTB): MDIO bus has internal PHYs at addr 0-4
+	 * (gigabit) and the uplink PHY at addr 0x1c (28) — the 2.5G QCA8081,
+	 * ESS port 6 / WAN in the reference design. As a managed AP the EWS377
+	 * uses this 2.5G port as its single PoE uplink.
+	 * TODO(validate): whether any gigabit port (phy 0-4) is physically
+	 * populated on the EWS377AP v3 enclosure.
 	 */
 	qca8081_28: ethernet-phy@28 {
 		compatible = "ethernet-phy-ieee802.3-c22";
