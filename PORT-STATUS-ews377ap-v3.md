@@ -3,15 +3,16 @@
 Target **C** (NSS-EDMA) port, on branch `ews377ap-v3`, forked from
 `JuliusBairaktaris/openwrt-nss-edma` (NSS offload on the **upstream** qca_edma/qca_ppe stack).
 
-This is a **scaffold**, not a working build. It establishes the file skeleton from the closest
-in-tree template so the remaining work is "fill in verified hardware values," not "start from zero."
+Not yet a working build, but no longer a blind scaffold: the device tree is populated with values
+confirmed from the OEM firmware (below). Design notes + extracted reference data are in
+[`ews377ap-v3-port/`](ews377ap-v3-port/README.md).
 
-## Why this template
+## Template
 
-`ipq8072-eap660hd-v1.dts` (TP-Link EAP660 HD v1) is the closest in-tree device: same IPQ8072,
-dual-band 4×4, single 2.5 GbE uplink (QCA8081 @ 2500base-x), NAND with `qcom,smem-part`. The
-EWS377AP v3 board `ap-hk07` is a Qualcomm HK reference derivative, as is EAP660HD — so most of the
-DTS should transfer. Every transferred value is marked `TODO(extract)` until confirmed on hardware.
+Initially derived from `ipq8072-eap660hd-v1.dts`, then re-based on **`ipq8071-ap8220.dts`** — the
+closest in-tree analog for this board's Ethernet wiring (2.5G QCA8081 on `port@6` via `uniphy2`).
+Values are confirmed against the decompiled OEM `fdt@hk07`; only the few items that need the running
+unit remain `TODO`.
 
 ## Files added
 
@@ -46,14 +47,14 @@ decompiled it — model *"Qualcomm IPQ807x/AP-HK07"*, i.e. exactly this board. V
   confirming the AP exposes only the one 2.5G uplink. RAM = 512 MB (`MP_512`).
 
 Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged in the
-`ews377apv3-openwrt` planning repo under `reference/`.
+`ews377ap-v3-port/reference/`.
 
 ## Still blocking — need the running unit / UART (ETA ~2 days)
 
 1. **Secure-boot fuse state** — go/no-go for booting any custom image at all.
 2. **WiFi board data** — RESOLVED to a concrete candidate: both OEM DTBs set
    `qcom,board_id = <0x290>`, and the OEM `senaoBDF.note` maps that to **`bdwlan.b290`** (shared with
-   ECW230v3 — same hk07 board). Blob is staged in the planning repo. Remaining: read the exact
+   ECW230v3 — same hk07 board). Blob is staged in `ews377ap-v3-port/reference/`. Remaining: read the exact
    ath11k board-id/variant string from the first boot log (expected 0x290), pack `bdwlan.b290` into a
    `board-2.bin` via `ath11k-bdencoder`, drop it as `package/firmware/ipq-wifi/board-engenius_ews377ap-v3.*`,
    and align the DTS `qcom,ath11k-calibration-variant`.
@@ -71,7 +72,7 @@ Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged 
 2. Hook up UART (header J2, 3.3V, 115200 8N1); run the secure-boot check (item 1); TFTP an initramfs
    build of this branch to prove console + Ethernet non-destructively.
 3. Iterate DTS until console/Ethernet/WiFi come up; then test sysupgrade to a non-OEM slot.
-4. Only then layer/verify the NSS-EDMA offload gates (see Phase 7 in the planning repo).
+4. Only then layer/verify the NSS-EDMA offload gates (see `ews377ap-v3-port/porting-plan.md`, Phase 7).
 
 ## Recovery
 
