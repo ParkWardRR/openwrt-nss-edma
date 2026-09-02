@@ -190,6 +190,33 @@ define Device/edimax_cax1800
 endef
 TARGET_DEVICES += edimax_cax1800
 
+# SCAFFOLD — EnGenius EWS377AP v3 (IPQ8072A, board ap-hk07).
+# The FitImage/UbiFit sysupgrade path is the primary install route once
+# OpenWrt is running. The web-ui-factory.bin wraps the image in a Senao
+# header so the OEM LuCI updater accepts it (check_senao_image_header.sh
+# gates on vendor_id + product_id only):
+#   vendor_id  257 (0x0101)   product_id 282 (0x011a)  -> EWS377AP v3
+# Confirm the exact mksenaofw flag mapping against a de-obfuscated OEM .bin
+# before relying on the factory image; the sysupgrade path is what to test
+# first (via u-boot / a shelled OEM slot).
+define Device/engenius_ews377ap-v3
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := EnGenius
+	DEVICE_MODEL := EWS377AP
+	DEVICE_VARIANT := v3
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	SOC := ipq8072
+	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3
+	# TODO(install): add Senao-header factory image once flag mapping is
+	# verified, e.g.:
+	#   IMAGES += web-ui-factory.bin
+	#   IMAGE/web-ui-factory.bin := append-ubi | \
+	#       senao-header -v 0x0101 -p 0x011a -t 0
+endef
+TARGET_DEVICES += engenius_ews377ap-v3
+
 define Device/linksys_homewrk
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
