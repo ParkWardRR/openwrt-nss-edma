@@ -28,8 +28,14 @@ decompiled it — model *"Qualcomm IPQ807x/AP-HK07"*, i.e. exactly this board. V
 
 - **LEDs:** single RGB status LED, active-high — GPIO **54** (R) / **55** (G) / **56** (B).
 - **Reset button:** GPIO **52**, active-low, `KEY_RESTART`.
-- **MDIO/PHY:** internal gigabit PHYs at addr 0–4; **2.5G uplink PHY (QCA8081) at addr 28** (ESS
-  port 6 / WAN in the reference). PHY reset via GPIO **43** (active-high) + GPIO **44** (active-low).
+- **MDIO/PHY:** internal gigabit PHYs at addr 0–4; **2.5G uplink PHY (QCA8081) at addr 28**. PHY
+  reset via GPIO **43** (active-high) + GPIO **44** (active-low). MDIO pins: mdc=gpio68, mdio=gpio69.
+- **Ethernet topology (fully translated to mainline bindings):** uniphy0 = QCA8075 5×GbE on ports
+  1–5 (PSGMII, `switch_mac_mode=0x00`); uniphy2 = the 2.5G QCA8081 on **ESS port 6** (USXGMII,
+  `switch_mac_mode2=0x0f`); uniphy1 unused. `switch_cpu_bmp=0x01`, `lan_bmp=0x3e`, `wan_bmp=0x40`.
+  The DTS wires the confirmed uplink as `port@6` → `qca8081_28` (`ethernet-phy-id004d.d101`),
+  `phy-mode="2500base-x"`, `pcs-handle=<&uniphy2 0>` — matching the in-tree `ipq8071-ap8220` 2.5G AP.
+  The 5× gigabit block is documented but omitted (AP almost certainly doesn't expose it).
 - **Partitions:** OEM defines them in SMEM (QSDK), so `qcom,smem-part` auto-reads the layout.
 - **WiFi firmware:** QSDK `WLAN.HK.2.5.r4-00745` (QCA8074_v2). Board-data set extracted: default
   `bdwlan.bin == bdwlan.b210`; the note confirms **ECW230v3 uses `bdwlan.b290`**.
@@ -44,8 +50,9 @@ Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged 
    chip at probe. Read it from the first ath11k boot log, then pack the matching `bdwlan` blob into a
    `board-2.bin` (via `ath11k-bdencoder`) as `package/firmware/ipq-wifi/board-engenius_ews377ap-v3.*`
    and set the DTS `qcom,ath11k-calibration-variant` to match.
-3. **Ethernet port population** — confirm whether any gigabit port (phy 0–4) is physically exposed on
-   the EWS377 enclosure, or only the 2.5G PoE uplink.
+3. **Ethernet port population** — the 2.5G uplink DTS is done; only need to confirm on hardware
+   whether any gigabit port (phy 0–4) is *physically exposed* on the EWS377 enclosure (if so, add the
+   documented QCA8075 block — and check the 0–4 vs 16–19 PHY strap).
 4. **Install format** — verify the exact `mksenaofw` flag mapping (vendor 0x0101 / product 0x011a)
    against a de-obfuscated OEM `.bin` before shipping the factory image.
 5. **PHY reset** — confirm a single reset on GPIO43 brings all PHYs up (QSDK toggles 43+44).
