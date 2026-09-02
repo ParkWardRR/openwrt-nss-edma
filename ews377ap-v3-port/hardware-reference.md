@@ -6,11 +6,26 @@ fleet + de-obfuscated stock firmware. Per-device secrets (real MAC/serial) are i
 ## SoC / radio
 
 - **SoC:** Qualcomm IPQ807x (IPQ8072A class)
-- **WiFi:** 4×4 802.11ax — same board as ECW230v3 and EWS377-FIT
+- **WiFi:** 4×4 802.11ax dual-band (tx/rxchainmask `15` on both radios) — same board as ECW230v3 and
+  EWS377-FIT. Marketing class "AX3600". FCC + ETSI DFS certified.
+- **RAM:** 512 MB (`MP_512`, memory reg `0x40000000` len `0x20000000` in the OEM DTB)
 - **Board name:** `ap-hk07` (Qualcomm reference-design designator; also the OpenWrt board id used downstream)
+- **Serial console:** `ttyMSM0` (blsp1_uart5), 115200n8 (OEM bootargs `console=ttyMSM0,115200,n8`)
 - **Firmware IDs:** vendor_id 257 (`0x0101`); product_id — EWS377AP v3 = 282 (`0x011a`),
   EWS377-FIT = 300, ECW230v3 = 284 (all the same silicon; product_id is the only differentiator the
   OEM image check enforces)
+- **WiFi board id:** `qcom,board_id = 0x290` → board data `bdwlan.b290`
+
+## Confirmed from firmware analysis (2026-09-02)
+
+- **NAND flash layout** (from the OEM `flash.scr`): the OS UBI region begins at NAND offset
+  `0x01000000` (first 16 MB holds SBL / u-boot / APPSBL / env / ART / config); the `wifi_fw` UBI sits
+  at `0x07f00000` (len `0x900000`). OpenWrt uses `qcom,smem-part` to read the real table.
+- **u-boot env:** `mtd7`, from the OEM `fw_env.config` = `/dev/mtd7 0x0 0x40000 0x20000 2` (256 KB env,
+  128 KB sector, 2 copies). A/B slot selection is the u-boot `active_fw` env var (in mtd7).
+- **Secure boot (userspace signal):** the OEM rootfs does **no** rootfs signature / dm-verity /
+  anti-rollback check, and the image gate is a userspace product_id compare. Consistent with secure
+  boot NOT being fused — but the SBL/u-boot fuse is the real arbiter; confirm at the u-boot prompt.
 
 ## Stock firmware = QSDK OpenWrt
 
