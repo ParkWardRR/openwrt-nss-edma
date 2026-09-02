@@ -1,0 +1,32 @@
+2023/08/26 Support Channel spec 230404
+04a7f1a842b0c983c91e56ec2ea334d6  bdwlan.b290
+04a7f1a842b0c983c91e56ec2ea334d6  bdwlan_sn_CTL.bin
+1f9ae85c914e0dceaa200ca081f369f4  bdwlan_sn_IC.bin
+e8e0c45a3a5f4b64bdab4fdfe6e7bf8b  bdwlan_sn_noCTL.bin
+
+2023/05/29 Support Channel SPEC 230131.(2.4G/5G SPEC is same to v220312, it changes 6G SPEC
+fe407d705c28b2ac86cb5ea7d947d0fb  bdwlan.b290
+fe407d705c28b2ac86cb5ea7d947d0fb  bdwlan_sn_CTL.bin
+22b0bf2f7518db1c1273d289dfb5a1de  bdwlan_sn_IC.bin
+dd6e32bd2adbac76fbb7ed12b9330375  bdwlan_sn_noCTL.bin
+
+2023/02/21 HW Release new BDF to fix power issue.
+dbc3b7356709460982688b298f98bee7  bdwlan.b290
+dbc3b7356709460982688b298f98bee7  bdwlan_sn_CTL.bin
+2713a1d6d530d262654fd971c4230d3e  bdwlan_sn_IC.bin
+15778956f62075ec7d0a9ca9079049a1  bdwlan_sn_noCTL.bin
+
+2023/02/14 Support Channel SPEC 230131.(2.4G/5G SPEC is same to v220312, it changes 6G SPEC
+2022/11/21 Support Channel SPEC 220312
+From FTP: /Board_Data/tools/SPF11.4.CSU2/QCA8074_v2.0/bdfUtil.QCA8074_v2.0.220312.zip
+f22df78299310bb9e1dac92e72311b03  bdwlan.b290
+f22df78299310bb9e1dac92e72311b03  bdwlan_sn_CTL.bin
+7d591c37d398865ba410375664808eae  bdwlan_sn_IC.bin
+dd6e32bd2adbac76fbb7ed12b9330375  bdwlan_sn_noCTL.bin
+
+2022/11/11 HW Potter First Release SPF11.4 ECW230v3 BDF
+4a4818d5976128f7eac66b8893844016  bdwlan.b290
+4a4818d5976128f7eac66b8893844016  bdwlan_sn_CTL.bin
+aa7a9095082cbf69726a95fc127563fb  bdwlan_sn_IC.bin
+15778956f62075ec7d0a9ca9079049a1  bdwlan_sn_noCTL.bin
+
