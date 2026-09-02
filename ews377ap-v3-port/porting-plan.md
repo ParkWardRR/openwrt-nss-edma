@@ -22,8 +22,9 @@ This single question decides whether the whole effort is possible.
 - If **not blown**, unsigned OpenWrt boots freely.
 
 **Signal we already have:** stock `bootcmd=bootipq` loads a FIT that is only **MD5/CRC-checked in
-userspace** (`check_senao_image_header.sh` gates on `product_id`, not a hardware signature). That
-strongly implies **no hardware root-of-trust is enforced** — but confirm at the u-boot prompt:
+userspace** (`check_senao_image_header.sh` gates on `product_id`, not a hardware signature), and the
+OEM rootfs does **no** dm-verity / signature / anti-rollback check. Both strongly imply **no hardware
+root-of-trust is enforced** — but the SBL/u-boot fuse is the real arbiter; confirm at the u-boot prompt:
 
 ```
 # at u-boot over UART (J2, 115200 8N1):
