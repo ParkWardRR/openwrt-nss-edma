@@ -37,8 +37,13 @@ decompiled it — model *"Qualcomm IPQ807x/AP-HK07"*, i.e. exactly this board. V
   `phy-mode="2500base-x"`, `pcs-handle=<&uniphy2 0>` — matching the in-tree `ipq8071-ap8220` 2.5G AP.
   The 5× gigabit block is documented but omitted (AP almost certainly doesn't expose it).
 - **Partitions:** OEM defines them in SMEM (QSDK), so `qcom,smem-part` auto-reads the layout.
-- **WiFi firmware:** QSDK `WLAN.HK.2.5.r4-00745` (QCA8074_v2). Board-data set extracted: default
-  `bdwlan.bin == bdwlan.b210`; the note confirms **ECW230v3 uses `bdwlan.b290`**.
+- **WiFi firmware:** QSDK `WLAN.HK.2.5.r4-00745` (QCA8074_v2). **Board id = `0x290`** in both OEM
+  DTBs → board-data blob **`bdwlan.b290`** (same as ECW230v3).
+- **LEDs (refined):** user-facing RGB status LED is a direct `gpio-leds` on GPIO54/55/56 (both DTBs)
+  — driven here. The functional pwr/lan/2.4G/5G/scan/ble indicators use the Qualcomm `qca,ledc`
+  hardware controller (gpio18/19/20 serial), which mainline has **no driver** for — not wired.
+- **Ethernet (refined):** the shipping firmware's `/etc/config/network` has a single `lan = eth0`,
+  confirming the AP exposes only the one 2.5G uplink. RAM = 512 MB (`MP_512`).
 
 Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged in the
 `ews377apv3-openwrt` planning repo under `reference/`.
@@ -46,10 +51,12 @@ Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged 
 ## Still blocking — need the running unit / UART (ETA ~2 days)
 
 1. **Secure-boot fuse state** — go/no-go for booting any custom image at all.
-2. **WiFi qmi-board-id** — mainline ath11k requests board data by the board-id it reads from the
-   chip at probe. Read it from the first ath11k boot log, then pack the matching `bdwlan` blob into a
-   `board-2.bin` (via `ath11k-bdencoder`) as `package/firmware/ipq-wifi/board-engenius_ews377ap-v3.*`
-   and set the DTS `qcom,ath11k-calibration-variant` to match.
+2. **WiFi board data** — RESOLVED to a concrete candidate: both OEM DTBs set
+   `qcom,board_id = <0x290>`, and the OEM `senaoBDF.note` maps that to **`bdwlan.b290`** (shared with
+   ECW230v3 — same hk07 board). Blob is staged in the planning repo. Remaining: read the exact
+   ath11k board-id/variant string from the first boot log (expected 0x290), pack `bdwlan.b290` into a
+   `board-2.bin` via `ath11k-bdencoder`, drop it as `package/firmware/ipq-wifi/board-engenius_ews377ap-v3.*`,
+   and align the DTS `qcom,ath11k-calibration-variant`.
 3. **Ethernet port population** — the 2.5G uplink DTS is done; only need to confirm on hardware
    whether any gigabit port (phy 0–4) is *physically exposed* on the EWS377 enclosure (if so, add the
    documented QCA8075 block — and check the 0–4 vs 16–19 PHY strap).
