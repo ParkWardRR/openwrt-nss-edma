@@ -110,20 +110,31 @@
 	reset-gpios = <&tlmm 43 GPIO_ACTIVE_HIGH>;
 
 	/*
-	 * CONFIRMED (OEM hk07 DTB): MDIO bus has internal PHYs at addr 0-4
-	 * (gigabit) and the uplink PHY at addr 0x1c (28) — the 2.5G QCA8081,
-	 * ESS port 6 / WAN in the reference design. As a managed AP the EWS377
-	 * uses this 2.5G port as its single PoE uplink.
-	 * TODO(validate): whether any gigabit port (phy 0-4) is physically
-	 * populated on the EWS377AP v3 enclosure.
+	 * CONFIRMED (OEM hk07 DTB): the single external uplink PHY is a 2.5G
+	 * QCA8081 at MDIO addr 0x1c (28) — ESS port 6, uniphy2, USXGMII
+	 * (switch_mac_mode2 = 0x0f in the OEM DTS). This is the EWS377's PoE
+	 * uplink. Use the QCA8081 phy-id compatible as the in-tree IPQ8072 2.5G
+	 * APs do (e.g. ipq8071-ap8220).
 	 */
 	qca8081_28: ethernet-phy@28 {
-		compatible = "ethernet-phy-ieee802.3-c22";
+		compatible = "ethernet-phy-id004d.d101";
 		reg = <28>;
 	};
+
+	/*
+	 * CONFIRMED (OEM hk07 DTB) but NOT wired here: the reference board also
+	 * carries a QCA8075 5-port gigabit block (uniphy0, PSGMII,
+	 * switch_mac_mode = 0x00) on ports 1-5 / OEM phy addr 0-4. A ceiling AP
+	 * like the EWS377 almost certainly does not expose these, so they are
+	 * omitted. TODO(validate on hardware): if a gigabit port IS present,
+	 * add a qca8075-package node + the relevant port@1..5 with
+	 * phy-mode "qsgmii" / pcs-handle <&uniphy0 N>. Note the OEM strap uses
+	 * PHY base address 0-4 (mainline QCA8075 examples use 16-19) — verify
+	 * the actual straps before enabling.
+	 */
 };
 
-&uniphy1 {
+&uniphy2 {
 	status = "okay";
 };
 
@@ -145,13 +156,17 @@
 			};
 		};
 
-		/* TODO(extract): confirm ESS port index + link speed for the uplink */
-		swport5: port@5 {
-			reg = <5>;
+		/*
+		 * CONFIRMED (OEM hk07 DTB): 2.5G uplink = ESS port 6, phy@28,
+		 * uniphy2. Labeled "lan" (AP uplink / bridge member), matching how
+		 * managed APs present their single port under OpenWrt.
+		 */
+		swport6: port@6 {
+			reg = <6>;
 			label = "lan";
 			phy-handle = <&qca8081_28>;
 			phy-mode = "2500base-x";
-			pcs-handle = <&uniphy1 0>;
+			pcs-handle = <&uniphy2 0>;
 		};
 	};
 };
