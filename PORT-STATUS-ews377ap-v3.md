@@ -52,12 +52,12 @@ Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged 
 ## Still blocking — need the running unit / UART (ETA ~2 days)
 
 1. **Secure-boot fuse state** — go/no-go for booting any custom image at all.
-2. **WiFi board data** — RESOLVED to a concrete candidate: both OEM DTBs set
-   `qcom,board_id = <0x290>`, and the OEM `senaoBDF.note` maps that to **`bdwlan.b290`** (shared with
-   ECW230v3 — same hk07 board). Blob is staged in `ews377ap-v3-port/reference/`. Remaining: read the exact
-   ath11k board-id/variant string from the first boot log (expected 0x290), pack `bdwlan.b290` into a
-   `board-2.bin` via `ath11k-bdencoder`, drop it as `package/firmware/ipq-wifi/board-engenius_ews377ap-v3.*`,
-   and align the DTS `qcom,ath11k-calibration-variant`.
+2. **WiFi board data** — ✅ **board-2.bin built & committed** at
+   `package/firmware/ipq-wifi/files/board-engenius_ews377ap-v3.ipq8074` — `bdwlan.b290` (from OEM fw,
+   board_id 0x290) packed via `ath11k-bdencoder`, keyed to `qmi-board-id=656` (bare + variant
+   `EnGenius-EWS377AP-v3`, matching the DTS). Remaining, needs first boot: confirm ath11k actually
+   requests `qmi-chip-id=0,qmi-board-id=656` (adjust the container if the log shows a different
+   chip-id/format) and verify per-device caldata handoff from ART.
 3. **Ethernet port population** — the 2.5G uplink DTS is done; only need to confirm on hardware
    whether any gigabit port (phy 0–4) is *physically exposed* on the EWS377 enclosure (if so, add the
    documented QCA8075 block — and check the 0–4 vs 16–19 PHY strap).
