@@ -20,6 +20,7 @@ locations; this directory is the design/reference companion.
 | `porting-plan.md` | End-to-end plan: bring-up → DTS → WiFi → NSS validation → install |
 | `uart-extraction-plan.md` | What to pull off the unit once UART is connected |
 | `hardware-reference.md` | MTD map, boot chain, u-boot env, recovery |
+| `research-notes.md` | Community findings: secure-boot priors, prior art, sizing |
 | `reference/` | Decompiled OEM device trees + WiFi board data + `board-2.bin` build recipe |
 
 ## Confirmed from OEM firmware (both FIT 1.1.30 and native managed v3.9.3.2)

@@ -9,6 +9,7 @@ fleet + de-obfuscated stock firmware. Per-device secrets (real MAC/serial) are i
 - **WiFi:** 4×4 802.11ax dual-band (tx/rxchainmask `15` on both radios) — same board as ECW230v3 and
   EWS377-FIT. Marketing class "AX3600". FCC + ETSI DFS certified.
 - **RAM:** 512 MB (`MP_512`, memory reg `0x40000000` len `0x20000000` in the OEM DTB)
+- **NAND:** 256 MiB (community bootlog; OS UBI region starts at NAND `0x01000000`)
 - **Board name:** `ap-hk07` (Qualcomm reference-design designator; also the OpenWrt board id used downstream)
 - **Serial console:** `ttyMSM0` (blsp1_uart5), 115200n8 (OEM bootargs `console=ttyMSM0,115200,n8`)
 - **Firmware IDs:** vendor_id 257 (`0x0101`); product_id — EWS377AP v3 = 282 (`0x011a`),

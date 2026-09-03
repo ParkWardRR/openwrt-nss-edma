@@ -243,8 +243,9 @@ $(eval $(call generate-ipq-wifi-package,compex_wpq873,Compex WPQ-873))
 $(eval $(call generate-ipq-wifi-package,dynalink_dl-wrx36,Dynalink DL-WRX36))
 $(eval $(call generate-ipq-wifi-package,edgecore_eap102,Edgecore EAP102))
 $(eval $(call generate-ipq-wifi-package,edimax_cax1800,Edimax CAX1800))
-# SCAFFOLD: requires board-engenius_ews377ap-v3.* (the OEM board-2.bin
-# extracted from /lib/firmware/IPQ8074), not yet committed. See PORT-STATUS.md.
+# EWS377AP v3: board-2.bin candidate provided in files/board-engenius_ews377ap-v3.ipq8074
+# (bdwlan.b290 from OEM firmware, board_id 0x290=656). Confirm the exact ath11k
+# board-id string from the first boot log. See PORT-STATUS-ews377ap-v3.md.
 $(eval $(call generate-ipq-wifi-package,engenius_ews377ap-v3,EnGenius EWS377AP v3))
 $(eval $(call generate-ipq-wifi-package,elecom_wrc-x3000gs2,ELECOM WRC-X3000GS2))
 $(eval $(call generate-ipq-wifi-package,glinet_gl-ax1800,GL.iNet GL-AX1800))
