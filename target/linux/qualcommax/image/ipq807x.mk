@@ -209,6 +209,13 @@ define Device/engenius_ews377ap-v3
 	PAGESIZE := 2048
 	SOC := ipq8072
 	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3
+	# This unit keeps the OEM QSDK u-boot, whose bootipq does
+	# `ubi read $addr kernel; bootm`. The bare Device/UbiFit `append-ubi`
+	# image is not loadable that way (0-byte kernel read -> safe fallback,
+	# confirmed on hardware 2026-09-06). Wrap the UBI in the QSDK factory
+	# format like the sibling IPQ8072 QSDK devices (compex_wpq873,
+	# edgecore_eap102) so the OEM bootloader can load it.
+	IMAGE/factory.ubi := append-ubi | qsdk-ipq-factory-nand
 	# TODO(install): add Senao-header factory image once flag mapping is
 	# verified, e.g.:
 	#   IMAGES += web-ui-factory.bin
