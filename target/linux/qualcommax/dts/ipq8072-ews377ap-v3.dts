@@ -202,14 +202,19 @@
 &wifi {
 	status = "okay";
 	/*
-	 * CONFIRMED (OEM DTBs, both EWS377-FIT 1.1.30 and native v3.9.3.2):
-	 * qcom,board_id = <0x290>. Per the OEM senaoBDF.note that board id maps
-	 * to board-data blob "bdwlan.b290" (shared with ECW230v3 — same hk07
-	 * board). The ipq-wifi-engenius_ews377ap-v3 board-2.bin must be built
-	 * from bdwlan.b290 and keyed to whatever qmi-board-id/variant ath11k
-	 * requests at first boot; set this variant string to match that entry.
-	 * TODO(validate): confirm the exact ath11k board-id string from the
-	 * first boot log (expected board_id 0x290).
+	 * fw-memory-mode 1 = reduced footprint (8 vdevs / 128 peers) that fits
+	 * without a large reserved host-DDR region. REQUIRED: absent, ath11k
+	 * defaults to mode 0 and the Q6 firmware-memory/QMI handshake stalls at
+	 * WCSS coldboot calibration (observed: soc_id 0xffffffff, hang after
+	 * "htt event 48 not handled"). Matches the working AX3600 and the OEM
+	 * DTB's qcom,tgt-mem-mode = <1>.
+	 */
+	qcom,ath11k-fw-memory-mode = <1>;
+	/*
+	 * CONFIRMED (OEM DTBs): qcom,board_id = <0x290> → board-data "bdwlan.b290"
+	 * (shared with ECW230v3). But ath11k at runtime requests the unfused id
+	 * qmi-board-id=255 disambiguated by this variant string; the
+	 * ipq-wifi-engenius_ews377ap-v3 board-2.bin is keyed to match.
 	 */
 	qcom,ath11k-calibration-variant = "EnGenius-EWS377AP-v3";
 };
