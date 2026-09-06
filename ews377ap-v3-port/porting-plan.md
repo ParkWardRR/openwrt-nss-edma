@@ -13,7 +13,11 @@ validates the NSS offload that is the whole point of using this tree.
 
 ---
 
-## Phase 0 — Go/no-go: is secure boot fused?
+## Phase 0 — Go/no-go: is secure boot fused? — ✅ RESOLVED: NOT fused → **GO** (2026-09-06)
+
+**Definitive: a direct bootloader fuse read on a live unit shows the secure-boot fuse is NOT blown.**
+Unsigned images boot; no vendor signing required. This was the one project-ending risk — it's cleared.
+The rest of this phase is retained for the record.
 
 This single question decides whether the whole effort is possible.
 
