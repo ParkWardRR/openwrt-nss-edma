@@ -18,7 +18,7 @@ unit remain `TODO`.
 
 | File | State |
 |---|---|
-| `target/linux/qualcommax/dts/ipq8072-engenius-ews377ap-v3.dts` | scaffold from EAP660HD; placeholders flagged |
+| `target/linux/qualcommax/dts/ipq8072-ews377ap-v3.dts` | scaffold from EAP660HD; placeholders flagged |
 | `target/linux/qualcommax/image/ipq807x.mk` — `Device/engenius_ews377ap-v3` | FitImage + UbiFit sysupgrade; factory (senao-header) stubbed |
 | `package/firmware/ipq-wifi/Makefile` — `ipq-wifi-engenius_ews377ap-v3` | package registered; **board-2.bin not yet supplied** |
 

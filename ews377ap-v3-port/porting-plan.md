@@ -92,7 +92,7 @@ Prove the SoC/DDR/console under OpenWrt **without writing flash**.
 ## Phase 3 — Device tree for `ap-hk07`  — ✅ largely drafted (offline)
 
 Done from the decompiled OEM `fdt@hk07` (see `reference/`); DTS lives at
-`target/linux/qualcommax/dts/ipq8072-engenius-ews377ap-v3.dts` on the fork branch `ews377ap-v3`,
+`target/linux/qualcommax/dts/ipq8072-ews377ap-v3.dts` on the fork branch `ews377ap-v3`,
 derived from `ipq8071-ap8220` (the closest in-tree 2.5G IPQ8072 AP).
 
 - ✅ **Partitions:** SMEM-defined → `qcom,smem-part` auto-reads DEVCFG/APPSBLENV/APPSBL/cert/ART/rootfs.
@@ -104,7 +104,7 @@ derived from `ipq8071-ap8220` (the closest in-tree 2.5G IPQ8072 AP).
   driver** — not portable.
 - **Pre-cal:** ath11k reads per-device caldata from **ART (mtd11)** — verify on hardware.
 
-**Deliverable:** `ipq8072-engenius-ews377ap-v3.dts` — drafted; boots to be proven at Phase 2.
+**Deliverable:** `ipq8072-ews377ap-v3.dts` — drafted; boots to be proven at Phase 2.
 
 ---
 
