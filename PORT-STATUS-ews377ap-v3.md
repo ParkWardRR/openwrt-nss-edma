@@ -3,9 +3,12 @@
 Target **C** (NSS-EDMA) port, on branch `ews377ap-v3`, forked from
 `JuliusBairaktaris/openwrt-nss-edma` (NSS offload on the **upstream** qca_edma/qca_ppe stack).
 
-Not yet a working build, but no longer a blind scaffold: the device tree is populated with values
-confirmed from the OEM firmware (below). Design notes + extracted reference data are in
-[`ews377ap-v3-port/`](ews377ap-v3-port/README.md).
+**✅ BUILDS CLEAN (2026-09-06):** the branch compiles end-to-end on OpenWrt kernel 6.18.44 and
+produces `initramfs-uImage.itb` / `squashfs-sysupgrade.bin` / `squashfs-factory.ubi` with
+`ath11k-firmware-ipq8074` + `ipq-wifi-engenius_ews377ap-v3` (board_id 0x290) included. Secure boot is
+confirmed not fused → boot-testing is unblocked; the initramfs RAM boot is the next step.
+
+Design notes + extracted reference data are in [`ews377ap-v3-port/`](ews377ap-v3-port/README.md).
 
 ## Template
 
