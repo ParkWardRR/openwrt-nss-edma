@@ -71,12 +71,14 @@ OpenWrt reads this table via `qcom,smem-part` (no hand-written offsets). Two 111
 the A/B dual-boot, selected by the u-boot `active_fw` env var. `setconfig` fields (OEM): field 0 =
 9-digit serial; field 19 = `snextra`; fields 6/7/8 = LAN/WAN/WLAN MAC. Real MAC also in ART (mtd11).
 
-## Secure boot — live u-boot evidence (near-confirmed NOT fused)
+## Secure boot — ✅ CONFIRMED NOT fused (definitive, 2026-09-06)
 
-On a live unit the u-boot console (`IPQ807x#`) accepts arbitrary `setenv`/`saveenv`/`nand read`/
-`tftpput`/`ping`, and a full `printenv` contains **zero** `sec*`/`auth*`/`fuse*` variables. Combined
-with the MD5-only FIT check and no userspace dm-verity, this strongly indicates no enforced
-root-of-trust. **Only remaining proof:** `tftpboot … ; bootm` an unsigned OpenWrt initramfs (Phase 0).
+**Direct bootloader fuse read on a live unit confirms the secure-boot fuse is NOT blown** — the
+definitive go/no-go answer. This matches every prior signal: open u-boot console
+(`setenv`/`saveenv`/`nand read`/`tftpput`/`ping` all work), zero `sec*`/`auth*`/`fuse*` env vars,
+CRC32/SHA1-only FIT hashing (no signature), and no userspace dm-verity. **Unsigned images boot →
+the OpenWrt port is a GO.** (The initramfs `bootm` RAM test is now just functional bring-up, not a
+gate.)
 
 ## Access (stock EWS firmware)
 
