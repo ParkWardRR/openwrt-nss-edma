@@ -9,7 +9,7 @@ locations; this directory is the design/reference companion.
 
 ## Port files in the tree
 
-- `target/linux/qualcommax/dts/ipq8072-engenius-ews377ap-v3.dts` — device tree
+- `target/linux/qualcommax/dts/ipq8072-ews377ap-v3.dts` — device tree
 - `target/linux/qualcommax/image/ipq807x.mk` — `Device/engenius_ews377ap-v3`
 - `package/firmware/ipq-wifi/Makefile` — `ipq-wifi-engenius_ews377ap-v3`
 
