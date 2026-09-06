@@ -8,8 +8,11 @@ fleet + de-obfuscated stock firmware. Per-device secrets (real MAC/serial) are i
 - **SoC:** Qualcomm IPQ807x (IPQ8072A class)
 - **WiFi:** 4×4 802.11ax dual-band (tx/rxchainmask `15` on both radios) — same board as ECW230v3 and
   EWS377-FIT. Marketing class "AX3600". FCC + ETSI DFS certified.
-- **RAM:** 512 MB (`MP_512`, memory reg `0x40000000` len `0x20000000` in the OEM DTB)
-- **NAND:** 256 MiB (community bootlog; OS UBI region starts at NAND `0x01000000`)
+- **RAM:** **1 GiB confirmed** on a live unit (u-boot `bdinfo`: DRAM `0x40000000` len `0x40000000`;
+  banner "1 GiB"). NOTE: the OEM DTB template and some community bootlogs say 512 MB → likely RAM
+  variants exist. Harmless for the DTS: qualcommax reads DRAM size from the bootloader at runtime.
+- **NAND:** 256 MiB (OS UBI region starts at NAND `0x01000000`)
+- **machid:** `0x8010006` (arch_number); u-boot `2.0.0`, `bootcmd=bootipq`, `bootdelay=5`
 - **Board name:** `ap-hk07` (Qualcomm reference-design designator; also the OpenWrt board id used downstream)
 - **Serial console:** `ttyMSM0` (blsp1_uart5), 115200n8 (OEM bootargs `console=ttyMSM0,115200,n8`)
 - **Firmware IDs:** vendor_id 257 (`0x0101`); product_id — EWS377AP v3 = 282 (`0x011a`),
@@ -43,20 +46,37 @@ OpenWrt build → DTS, board files, and partition layout already exist in EnGeni
   vendor_id+product_id) — no observed hardware signature enforcement (⇒ secure boot likely not fused;
   **must still be confirmed at u-boot**, see UART plan Phase 0)
 
-## Flash / MTD map
+## Flash / MTD map (authoritative — from a live unit's `mtdparts`, NAND 256 MiB)
 
-| Partition | MTD | Notes |
-|---|---|---|
-| DEVCFG | mtd3 | device config |
-| APPSBLENV | mtd7 | **u-boot env** (`setconfig` / `fw_setenv` write here) |
-| APPSBL | mtd8 | bootloader + compiled default env |
-| cert | mtd9 | Fit/cloud registration cert (preserved across rootfs flash) |
-| **ART** | **mtd11** | **RF calibration + real MAC — corruption = real brick** |
-| rootfs (cloud slot) | mtd12 | `rootfs_1` |
-| rootfs (EWS slot) | mtd14 | `rootfs`, `active_fw=0` default |
+| mtd | Partition | Offset | Size | Notes |
+|---|---|---|---|---|
+| 0 | 0:SBL1 | 0x0 | 1M | |
+| 1 | 0:MIBIB | 0x100000 | 1M | partition table |
+| 2 | 0:QSEE | 0x200000 | 3M | TrustZone |
+| 3 | 0:DEVCFG | 0x500000 | 512K | |
+| 4 | 0:APDP | 0x580000 | 512K | |
+| 5 | 0:RPM | 0x600000 | 512K | |
+| 6 | 0:CDT | 0x680000 | 512K | |
+| 7 | 0:APPSBLENV | 0x700000 | 512K | **u-boot env** (`fw_setenv` writes here) |
+| 8 | 0:APPSBL | 0x780000 | 6784K | u-boot + compiled default env |
+| 9 | cert | 0xe20000 | 384K | registration cert |
+| 10 | userconfig | 0xe80000 | 1M | |
+| 11 | **0:ART** | 0xf80000 | 512K | **RF cal + factory MAC — never write; corruption = real brick** |
+| 12 | rootfs_1 | 0x1000000 | 111M | slot A (cloud in OEM layout) |
+| 13 | 0:WIFIFW_1 | 0x7f00000 | 9M | wifi fw for slot A |
+| 14 | rootfs | 0x8800000 | 111M | slot B (EWS in OEM layout) |
+| 15 | 0:WIFIFW | 0xf700000 | 9M | wifi fw for slot B |
 
-`setconfig` fields: field 0 = 9-digit serial; field 19 = `snextra` (len-20 extended serial);
-fields 6/7/8 = LAN/WAN/WLAN MAC. Real MAC also in ART (mtd11).
+OpenWrt reads this table via `qcom,smem-part` (no hand-written offsets). Two 111 MiB rootfs slots =
+the A/B dual-boot, selected by the u-boot `active_fw` env var. `setconfig` fields (OEM): field 0 =
+9-digit serial; field 19 = `snextra`; fields 6/7/8 = LAN/WAN/WLAN MAC. Real MAC also in ART (mtd11).
+
+## Secure boot — live u-boot evidence (near-confirmed NOT fused)
+
+On a live unit the u-boot console (`IPQ807x#`) accepts arbitrary `setenv`/`saveenv`/`nand read`/
+`tftpput`/`ping`, and a full `printenv` contains **zero** `sec*`/`auth*`/`fuse*` variables. Combined
+with the MD5-only FIT check and no userspace dm-verity, this strongly indicates no enforced
+root-of-trust. **Only remaining proof:** `tftpboot … ; bootm` an unsigned OpenWrt initramfs (Phase 0).
 
 ## Access (stock EWS firmware)
 
