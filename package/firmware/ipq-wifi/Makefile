@@ -13,6 +13,16 @@ PKG_FLAGS:=nonshared
 
 include $(INCLUDE_DIR)/package.mk
 
+# This package pulls upstream board files from a git PKG_SOURCE, whose unpack
+# populates PKG_BUILD_DIR. Local override files under ./files/ (used by
+# install-overlay's $(PKG_BUILD_DIR)/board-<dev>.* wildcard) must be copied in
+# AFTER the default prepare, or they never ship. Without this, a board-<dev>.*
+# placed in files/ is silently ignored.
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	$(if $(wildcard ./files/*),$(CP) ./files/. $(PKG_BUILD_DIR)/)
+endef
+
 define Build/Compile
 endef
 
