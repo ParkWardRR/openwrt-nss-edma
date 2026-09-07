@@ -216,19 +216,24 @@ define Device/engenius_ews377ap-v3
 	# (netgear_wax218) so bootipq finds it.
 	DEVICE_DTS_CONFIG := config@hk07
 	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3
-	# Keep factory.ubi a BARE UBI (Device/UbiFit default) for controlled
-	# MTD/UBI experiments. Additionally emit a QSDK FIT updater container
-	# under a DISTINCT name (dumpimage-extracted by the OEM upgrade pipeline)
-	# so a ".ubi" file never silently contains a FIT wrapper. The bare UBI is
-	# raw-nand-writable to a slot; the earlier 0-byte-kernel-read failure was
-	# a missing board-matched FIT config name, not the UBI/write (2026-09-06).
-	IMAGES += qsdk-factory.itb
-	IMAGE/qsdk-factory.itb := append-ubi | qsdk-ipq-factory-nand
-	# TODO(install): add Senao-header factory image once flag mapping is
-	# verified, e.g.:
-	#   IMAGES += web-ui-factory.bin
-	#   IMAGE/web-ui-factory.bin := append-ubi | \
-	#       senao-header -v 0x0101 -p 0x011a -t 0
+	# Keep factory.ubi a BARE UBI (Device/UbiFit default) for the proven
+	# UART/u-boot and SSH+ubiformat install paths (raw-nand-writable / a
+	# valid ubiformat source; the earlier 0-byte-kernel-read failure was a
+	# missing board-matched FIT config name, not the UBI/write, 2026-09-06).
+	#
+	# web-ui-factory.fit mirrors the officially-supported ap-hk07 sibling
+	# netgear_wax218 EXACTLY (same SoC/bootloader/board): a QSDK FIT wrapping
+	# a kernel-only UBI built from the INITRAMFS image via ubinize-kernel,
+	# not a Senao-wrapped squashfs factory. Verified against the real
+	# upstream netgear_wax218 web-ui-factory.fit (2026-09-07): single
+	# dynamic "kernel" UBI volume, no rootfs volume — it boots self-contained
+	# from RAM regardless of which A/B slot the bootloader loads, sidestepping
+	# the slot-tracking issue upstream documents for this bootloader. Persist
+	# it with a normal sysupgrade once already running OpenWrt (matches the
+	# WAX218's own documented two-step web-UI install).
+	ARTIFACTS := web-ui-factory.fit
+	ARTIFACT/web-ui-factory.fit := append-image initramfs-uImage.itb | \
+		ubinize-kernel | qsdk-ipq-factory-nand
 endef
 TARGET_DEVICES += engenius_ews377ap-v3
 
