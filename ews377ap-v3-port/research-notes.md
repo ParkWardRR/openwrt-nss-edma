@@ -2,6 +2,9 @@
 
 Findings from OpenWrt community sources relevant to this port (2026-09-03).
 
+> **STATUS: confirmed (2026-09-06).** The secure-boot prior below proved correct — a direct fuse read
+> on the unit showed **secure boot is NOT fused**; custom images boot. Port is complete and validated.
+
 ## Secure boot on IPQ807x (the go/no-go)
 
 - **robimarko** (core OpenWrt IPQ maintainer), on the IPQ807x investigation thread: *"I would bet that

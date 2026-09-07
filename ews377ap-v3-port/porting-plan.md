@@ -8,6 +8,13 @@ the same port. Ordered so the **go/no-go decision (secure boot)** and the **non-
 Working tree: fork `ParkWardRR/openwrt-nss-edma`, branch `ews377ap-v3`. The OEM stock firmware is kept
 only as the throughput **baseline to measure against** — it is not a build target.
 
+> **STATUS (2026-09-06): ✅ port COMPLETE, validated on real hardware.** Every phase done —
+> secure-boot go (not fused), DTS, WiFi (both radios), NSS build, and a **persistent NAND install**.
+> The two unlockers: FIT `config@hk07` (OEM `bootipq` selects the config by board name) and installing
+> to **slot 0** (the `rootfs` partition OpenWrt's root-mount targets). Eth / WiFi (WPA2) /
+> reboot-persistence confirmed. Community build **v0.1** released (`v0.1.0-ews377ap-v3`). Final
+> outcomes in `../PORT-STATUS-ews377ap-v3.md`.
+
 Bring-up (Phases 0–6) gets the board booting/calibrating on the NSS-EDMA tree; Phase 7 turns on and
 validates the NSS offload that is the whole point of using this tree.
 

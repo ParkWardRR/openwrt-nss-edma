@@ -3,6 +3,11 @@
 Goal: get EnGenius **EWS377AP v3** (IPQ8072A, `ap-hk07`) into **mainline OpenWrt**
 (`openwrt/openwrt`, target `qualcommax/ipq807x`). This is a review draft — nothing is submitted yet.
 
+> **STATUS (2026-09-06):** the fork port is **COMPLETE and hardware-validated** (community build v0.1
+> released). Mainline upstreaming per this plan is still **TODO / not submitted**. Note for the PR:
+> the hardware-proven install needs the FIT config named `config@hk07` (`DEVICE_DTS_CONFIG :=
+> config@hk07`) and OpenWrt installed to the `rootfs` slot 0 — carry both into the mainline recipe.
+
 ## 0. The key distinction: mainline ≠ our NSS-EDMA fork
 
 All our work so far is on the **`JuliusBairaktaris/openwrt-nss-edma` fork**, which adds Qualcomm NSS
