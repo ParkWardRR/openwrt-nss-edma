@@ -3,10 +3,28 @@
 Target **C** (NSS-EDMA) port, on branch `ews377ap-v3`, forked from
 `JuliusBairaktaris/openwrt-nss-edma` (NSS offload on the **upstream** qca_edma/qca_ppe stack).
 
-**✅ BUILDS CLEAN (2026-09-06):** the branch compiles end-to-end on OpenWrt kernel 6.18.44 and
-produces `initramfs-uImage.itb` / `squashfs-sysupgrade.bin` / `squashfs-factory.ubi` with
-`ath11k-firmware-ipq8074` + `ipq-wifi-engenius_ews377ap-v3` (board_id 0x290) included. Secure boot is
-confirmed not fused → boot-testing is unblocked; the initramfs RAM boot is the next step.
+**🎉 VALIDATED ON HARDWARE (2026-09-06):** OpenWrt is **installed and running persistently from NAND**
+on a real EWS377AP v3 (ScuderiaToroRosso). Full end-to-end: `bootipq` → FIT `config@hk07` → kernel →
+UBI root mount (`ubi0` on the `rootfs` partition, 887/1 PEBs, factory bad block skipped) → squashfs
+root + `rootfs_data` UBIFS overlay → `root@OpenWrt:~#`. Ethernet up, both WiFi radios functional
+(tested WPA2, torn down), config **persists across real reboots**. Secure boot confirmed not fused.
+
+Build: kernel 6.18.44; artifacts `initramfs-uImage.itb`, `squashfs-sysupgrade.bin`, bare
+`squashfs-factory.ubi`, `squashfs-qsdk-factory.itb` (OEM-updater FIT), with `ath11k-firmware-ipq8074`
++ `ipq-wifi-engenius_ews377ap-v3` (board_id 0x290).
+
+### The two fixes that unlocked NAND boot (both on hardware)
+1. **FIT config name** — OEM `bootipq` selects the FIT config by board name `config@hk07` and aborts
+   ("Config not availabale") on the default `config@1`. Set `DEVICE_DTS_CONFIG := config@hk07` (like
+   the sibling ap-hk07 board `netgear_wax218`). *This was the boot-loader blocker.*
+2. **Install to slot 0** — OpenWrt's qualcommax root-mount always targets the SMEM/DTS partition
+   labeled `rootfs` = mtd12 @0x1000000 (slot 0), regardless of which slot u-boot loaded the kernel
+   from. So OpenWrt must be written to **slot 0** (also the only slot the OEM installer writes).
+   Single-slot; the OEM A/B fallback is not used.
+
+Install method (u-boot): `nand erase 0x1000000 0x6f00000` then `nand write <addr> 0x1000000 <ubisize>`
+of the bare `factory.ubi`, `active_fw=0`, `reset`. `nand write` skips the BBT-registered factory bad
+block (0x3980000) and UBI is bad-block-tolerant, so slot 0 writes cleanly.
 
 Design notes + extracted reference data are in [`ews377ap-v3-port/`](ews377ap-v3-port/README.md).
 
@@ -52,32 +70,28 @@ decompiled it — model *"Qualcomm IPQ807x/AP-HK07"*, i.e. exactly this board. V
 Extraction artifacts (decompiled OEM DTS + board-data blobs + notes) are staged in the
 `ews377ap-v3-port/reference/`.
 
-## Still blocking — need the running unit / UART (ETA ~2 days)
+## Resolved on hardware (2026-09-06)
 
-1. **Secure-boot fuse state** — go/no-go for booting any custom image at all.
-2. **WiFi board data** — ✅ **board-2.bin built & committed** at
-   `package/firmware/ipq-wifi/files/board-engenius_ews377ap-v3.ipq8074` — `bdwlan.b290` (from OEM fw,
-   board_id 0x290) packed via `ath11k-bdencoder`, keyed to `qmi-board-id=656` (bare + variant
-   `EnGenius-EWS377AP-v3`, matching the DTS). Remaining, needs first boot: confirm ath11k actually
-   requests `qmi-chip-id=0,qmi-board-id=656` (adjust the container if the log shows a different
-   chip-id/format) and verify per-device caldata handoff from ART.
-3. **Ethernet port population** — the 2.5G uplink DTS is done; only need to confirm on hardware
-   whether any gigabit port (phy 0–4) is *physically exposed* on the EWS377 enclosure (if so, add the
-   documented QCA8075 block — and check the 0–4 vs 16–19 PHY strap).
-4. **Install format** — verify the exact `mksenaofw` flag mapping (vendor 0x0101 / product 0x011a)
-   against a de-obfuscated OEM `.bin` before shipping the factory image.
-5. **PHY reset** — confirm a single reset on GPIO43 brings all PHYs up (QSDK toggles 43+44).
+1. **Secure-boot fuse state** — ✅ not fused (direct fuse read); custom images boot.
+2. **WiFi board data** — ✅ both radios come up. Bench proved the stock/generic board-2.bin already
+   satisfies `qmi-board-id=255`; caldata handoff from ART works via the `11-ath11k-caldata` hotplug.
+3. **Ethernet** — ✅ single 2.5G `lan` uplink (QCA8081@28, `2500base-x`/uniphy2) is the exposed port;
+   `eth0` is the internal CPU conduit. `ethtool lan` advertises 10/100/1000/2500; observed speed is
+   link-partner-limited (1G bench switch), not a defect. No gigabit ports exposed on the enclosure.
+4. **Install format** — ✅ two paths: (a) u-boot TFTP + `nand write` of the bare `factory.ubi` to
+   slot 0 (the validated method); (b) `qsdk-factory.itb` FIT for the OEM updater pipeline (built,
+   not yet exercised). Senao-header web-UI factory image still stubbed (optional).
+5. **NAND boot** — ✅ `config@hk07` + slot-0 install (see banner) — persistent, reboot-surviving.
 
-## Suggested next steps (in order)
-
-1. Extract OEM DTS + `/lib/firmware/IPQ8074` from a de-obfuscated stock image (offline, no hardware) —
-   fill in items 2–4 above from real data.
-2. Hook up UART (header J2, 3.3V, 115200 8N1); run the secure-boot check (item 1); TFTP an initramfs
-   build of this branch to prove console + Ethernet non-destructively.
-3. Iterate DTS until console/Ethernet/WiFi come up; then test sysupgrade to a non-OEM slot.
-4. Only then layer/verify the NSS-EDMA offload gates (see `ews377ap-v3-port/porting-plan.md`, Phase 7).
+## Remaining / minor
+- 2.5G speed needs a 2.5G-capable switch partner to observe 2500 (test-bench topology, not a fix).
+- NSS-EDMA offload: built in; confirm throughput gains under load (see `ews377ap-v3-port/porting-plan.md` Phase 7).
+- Upstreaming to mainline OpenWrt (strip NSS + fork-only bits): see `ews377ap-v3-port/UPSTREAMING-PLAN.md`.
+- Slot 1 (mtd14) holds a harmless partial image from an aborted A/B attempt; can be re-erased later.
 
 ## Recovery
 
-Dual A/B OEM slots + UART + TFTP. Keep one OEM slot intact. Back up mtd11 (ART) before any flash —
-its corruption is a real brick.
+Single-slot now (OpenWrt on slot 0). Rollback: TFTP the byte-exact OEM `oem-rootfs.bin` dump back to
+slot 0 via the same `nand erase 0x1000000 0x6f00000` / `nand write` sequence (u-boot skips the factory
+bad block). Full backups (mtd12/mtd14/mtd7/mtd8/mtd11) are held off-device. Never write mtd11 (ART) —
+its corruption is the only true brick; secure boot is unfused so u-boot + TFTP always recover.
