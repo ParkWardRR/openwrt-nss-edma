@@ -8,6 +8,10 @@ Most of the *generic* data (DTB, `board-2.bin`) is also extractable from the fir
 **The one thing that requires the physical unit is per-device ART/caldata + the real MAC/serial** —
 which is exactly why UART matters.
 
+> **STATUS: done (2026-09-06).** UART was connected (header J2, 115200 8N1); DTB, board data,
+> per-device ART/caldata, the full partition table, and the u-boot env were all extracted, and the
+> port is now validated on hardware. Kept as the extraction-method reference.
+
 ---
 
 ## 0. Wiring (do this once)

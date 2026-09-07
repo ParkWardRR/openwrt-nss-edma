@@ -3,6 +3,10 @@
 Consolidated facts about the board, boot chain, and flash layout. Sources: live analysis of the
 fleet + de-obfuscated stock firmware. Per-device secrets (real MAC/serial) are intentionally omitted.
 
+> **STATUS: verified on hardware (2026-09-06).** The MTD map, dual-slot boot chain
+> (`bootcmd=bootipq`, `active_fw`), and u-boot env below are all confirmed live. OpenWrt installs to
+> **slot 0** (`rootfs` @0x1000000); `nand write` skips the single factory bad block (0x3980000).
+
 ## SoC / radio
 
 - **SoC:** Qualcomm IPQ807x (IPQ8072A class)
