@@ -208,15 +208,20 @@ define Device/engenius_ews377ap-v3
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	SOC := ipq8072
+	# OEM bootipq selects the FIT config by board name (config@hk07) and
+	# aborts with "Config not availabale" on a FIT that only defines the
+	# default config@1 (confirmed on hardware 2026-09-06: bootm#config@1
+	# boots our kernel fine, but bootipq's own board-name lookup fails).
+	# Name the config config@hk07 like the sibling ap-hk07 board
+	# (netgear_wax218) so bootipq finds it.
+	DEVICE_DTS_CONFIG := config@hk07
 	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3
 	# Keep factory.ubi a BARE UBI (Device/UbiFit default) for controlled
 	# MTD/UBI experiments. Additionally emit a QSDK FIT updater container
 	# under a DISTINCT name (dumpimage-extracted by the OEM upgrade pipeline)
-	# so a ".ubi" file never silently contains a FIT wrapper. NOTE: the OEM
-	# QSDK u-boot's raw bootipq path (`ubi read $addr kernel; bootm`) did NOT
-	# accept a raw nand-written bare UBI (0-byte kernel read -> safe fallback,
-	# 2026-09-06); root cause under investigation, so keep both artifacts
-	# distinct and do not assume the QSDK FIT is raw-nand-writable.
+	# so a ".ubi" file never silently contains a FIT wrapper. The bare UBI is
+	# raw-nand-writable to a slot; the earlier 0-byte-kernel-read failure was
+	# a missing board-matched FIT config name, not the UBI/write (2026-09-06).
 	IMAGES += qsdk-factory.itb
 	IMAGE/qsdk-factory.itb := append-ubi | qsdk-ipq-factory-nand
 	# TODO(install): add Senao-header factory image once flag mapping is
