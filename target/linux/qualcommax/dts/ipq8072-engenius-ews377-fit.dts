@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause
+/*
+ * EnGenius EWS377-FIT — FIT-controller managed AP, product_id 0x012c
+ *
+ * No hardware access; candidate support based on firmware analysis.
+ * Board data differs from EWS377AP v3 by only 56 bytes (0.04%).
+ */
+
+#include "ipq8072-engenius-ap-hk07.dtsi"
+
+/ {
+	model = "EnGenius EWS377-FIT";
+	compatible = "engenius,ews377-fit", "qcom,ipq8074";
+};
+
+&wifi {
+	qcom,ath11k-calibration-variant = "EnGenius-EWS377-FIT";
+};

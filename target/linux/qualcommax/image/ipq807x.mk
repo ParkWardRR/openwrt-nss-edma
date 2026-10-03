@@ -191,52 +191,45 @@ define Device/edimax_cax1800
 endef
 TARGET_DEVICES += edimax_cax1800
 
-# SCAFFOLD — EnGenius EWS377AP v3 (IPQ8072A, board ap-hk07).
-# The FitImage/UbiFit sysupgrade path is the primary install route once
-# OpenWrt is running. The web-ui-factory.bin wraps the image in a Senao
-# header so the OEM LuCI updater accepts it (check_senao_image_header.sh
-# gates on vendor_id + product_id only):
-#   vendor_id  257 (0x0101)   product_id 282 (0x011a)  -> EWS377AP v3
-# Confirm the exact mksenaofw flag mapping against a de-obfuscated OEM .bin
-# before relying on the factory image; the sysupgrade path is what to test
-# first (via u-boot / a shelled OEM slot).
-define Device/engenius_ews377ap-v3
+define Device/engenius_ap-hk07
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
 	DEVICE_VENDOR := EnGenius
-	DEVICE_MODEL := EWS377AP
-	DEVICE_VARIANT := v3
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	SOC := ipq8072
-	# OEM bootipq selects the FIT config by board name (config@hk07) and
-	# aborts with "Config not availabale" on a FIT that only defines the
-	# default config@1 (confirmed on hardware 2026-09-06: bootm#config@1
-	# boots our kernel fine, but bootipq's own board-name lookup fails).
-	# Name the config config@hk07 like the sibling ap-hk07 board
-	# (netgear_wax218) so bootipq finds it.
 	DEVICE_DTS_CONFIG := config@hk07
-	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3 nss-tools
-	# Keep factory.ubi a BARE UBI (Device/UbiFit default) for the proven
-	# UART/u-boot and SSH+ubiformat install paths (raw-nand-writable / a
-	# valid ubiformat source; the earlier 0-byte-kernel-read failure was a
-	# missing board-matched FIT config name, not the UBI/write, 2026-09-06).
-	#
-	# web-ui-factory.fit mirrors the officially-supported ap-hk07 sibling
-	# netgear_wax218 EXACTLY (same SoC/bootloader/board): a QSDK FIT wrapping
-	# a kernel-only UBI built from the INITRAMFS image via ubinize-kernel,
-	# not a Senao-wrapped squashfs factory. Verified against the real
-	# upstream netgear_wax218 web-ui-factory.fit (2026-09-07): single
-	# dynamic "kernel" UBI volume, no rootfs volume — it boots self-contained
-	# from RAM regardless of which A/B slot the bootloader loads, sidestepping
-	# the slot-tracking issue upstream documents for this bootloader. Persist
-	# it with a normal sysupgrade once already running OpenWrt (matches the
-	# WAX218's own documented two-step web-UI install).
+	DEVICE_PACKAGES := nss-tools
+ifeq ($(IB),)
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
 	ARTIFACTS := web-ui-factory.fit
 	ARTIFACT/web-ui-factory.fit := append-image initramfs-uImage.itb | \
 		ubinize-kernel | qsdk-ipq-factory-nand
+endif
+endif
+endef
+
+define Device/engenius_ews377ap-v3
+	$(call Device/engenius_ap-hk07)
+	DEVICE_MODEL := EWS377AP
+	DEVICE_VARIANT := v3
+	DEVICE_PACKAGES += ipq-wifi-engenius_ews377ap-v3
 endef
 TARGET_DEVICES += engenius_ews377ap-v3
+
+define Device/engenius_ecw230v3
+	$(call Device/engenius_ap-hk07)
+	DEVICE_MODEL := ECW230v3
+	DEVICE_PACKAGES += ipq-wifi-engenius_ecw230v3
+endef
+TARGET_DEVICES += engenius_ecw230v3
+
+define Device/engenius_ews377-fit
+	$(call Device/engenius_ap-hk07)
+	DEVICE_MODEL := EWS377-FIT
+	DEVICE_PACKAGES += ipq-wifi-engenius_ews377-fit
+endef
+TARGET_DEVICES += engenius_ews377-fit
 
 define Device/linksys_homewrk
 	$(call Device/FitImage)

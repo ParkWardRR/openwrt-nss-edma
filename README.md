@@ -22,6 +22,25 @@ NSS node in its device tree, are on the
 page. IPQ60xx images are in the `ipq60xx-1g` and `ipq60xx-512m` groups.
 Each build comes in a default and a mesh flavour.
 
+## EnGenius AP-HK07 board support
+
+Three EnGenius SKUs share the AP-HK07 reference design (IPQ8072A, QCN5024 +
+QCN5054, 2.5GbE QCA8081 uplink):
+
+| SKU | Status | Install |
+|---|---|---|
+| **EWS377AP v3** (managed AP) | Validated on hardware | sysupgrade + web-ui-factory.fit |
+| **ECW230v3** (cloud AP) | Candidate — needs community testing | sysupgrade + web-ui-factory.fit |
+| **EWS377-FIT** (FIT-controller AP) | Candidate — needs community testing | sysupgrade + web-ui-factory.fit |
+
+The three share a common device-tree include (`ipq8072-engenius-ap-hk07.dtsi`)
+with thin per-device `.dts` wrappers that set the compatible string and WiFi
+calibration variant. Board-specific WiFi calibration data (`board-2.bin`) is
+extracted from each SKU's stock firmware.
+
+See `ews377ap-v3-port/sibling-sku-firmware-analysis.md` for the firmware
+analysis that confirmed hardware identity across the three SKUs.
+
 ## Documentation
 
 The [wiki](https://github.com/JuliusBairaktaris/openwrt-nss-edma/wiki)
