@@ -214,20 +214,46 @@ define Device/engenius_ews377ap-v3
 	DEVICE_MODEL := EWS377AP
 	DEVICE_VARIANT := v3
 	DEVICE_PACKAGES += ipq-wifi-engenius_ews377ap-v3
+ifeq ($(IB),)
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+	ARTIFACTS += senao-factory.bin
+	ARTIFACT/senao-factory.bin := append-image initramfs-uImage.itb | \
+		ubinize-kernel | qsdk-ipq-factory-nand | \
+		senao-header -r 0x0101 -p 0x011a -t 2 -m 783c9ecf67b359ac
+endif
+endif
 endef
 TARGET_DEVICES += engenius_ews377ap-v3
 
 define Device/engenius_ecw230v3
 	$(call Device/engenius_ap-hk07)
 	DEVICE_MODEL := ECW230v3
+	DEVICE_DTS := ipq8072-engenius-ecw230v3
 	DEVICE_PACKAGES += ipq-wifi-engenius_ecw230v3
+ifeq ($(IB),)
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+	ARTIFACTS += senao-factory.bin
+	ARTIFACT/senao-factory.bin := append-image initramfs-uImage.itb | \
+		ubinize-kernel | qsdk-ipq-factory-nand | \
+		senao-header -r 0x0101 -p 0x011c -t 2 -m 783c9ecf67b359ac
+endif
+endif
 endef
 TARGET_DEVICES += engenius_ecw230v3
 
 define Device/engenius_ews377-fit
 	$(call Device/engenius_ap-hk07)
 	DEVICE_MODEL := EWS377-FIT
+	DEVICE_DTS := ipq8072-engenius-ews377-fit
 	DEVICE_PACKAGES += ipq-wifi-engenius_ews377-fit
+ifeq ($(IB),)
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+	ARTIFACTS += senao-factory.bin
+	ARTIFACT/senao-factory.bin := append-image initramfs-uImage.itb | \
+		ubinize-kernel | qsdk-ipq-factory-nand | \
+		senao-header -r 0x0101 -p 0x012c -t 2 -m 783c9ecf67b359ac
+endif
+endif
 endef
 TARGET_DEVICES += engenius_ews377-fit
 
