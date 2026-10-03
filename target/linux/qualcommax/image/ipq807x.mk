@@ -216,7 +216,7 @@ define Device/engenius_ews377ap-v3
 	# Name the config config@hk07 like the sibling ap-hk07 board
 	# (netgear_wax218) so bootipq finds it.
 	DEVICE_DTS_CONFIG := config@hk07
-	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3
+	DEVICE_PACKAGES := ipq-wifi-engenius_ews377ap-v3 nss-tools
 	# Keep factory.ubi a BARE UBI (Device/UbiFit default) for the proven
 	# UART/u-boot and SSH+ubiformat install paths (raw-nand-writable / a
 	# valid ubiformat source; the earlier 0-byte-kernel-read failure was a
