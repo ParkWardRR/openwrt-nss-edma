@@ -131,6 +131,8 @@
 			phy-handle = <&qca8081_28>;
 			phy-mode = "2500base-x";
 			pcs-handle = <&uniphy2 0>;
+			nvmem-cells = <&macaddr_ubootenv_ethaddr>;
+			nvmem-cell-names = "mac-address";
 		};
 	};
 };
@@ -154,6 +156,19 @@
 
 		partitions {
 			compatible = "qcom,smem-part";
+
+			partition-0-appsblenv {
+				label = "0:appsblenv";
+				read-only;
+
+				nvmem-layout {
+					compatible = "u-boot,env";
+					env-size = <0x40000>;
+
+					macaddr_ubootenv_ethaddr: ethaddr {
+					};
+				};
+			};
 		};
 	};
 };
