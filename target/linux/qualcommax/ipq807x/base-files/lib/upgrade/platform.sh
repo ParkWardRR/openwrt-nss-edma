@@ -179,6 +179,9 @@ platform_do_upgrade() {
 	compex,wpq873|\
 	dynalink,dl-wrx36|\
 	edimax,cax1800|\
+	engenius,ecw230v3|\
+	engenius,ews377ap-v3|\
+	engenius,ews377-fit|\
 	netgear,rax120v2|\
 	netgear,rbr750|\
 	netgear,rbs750|\

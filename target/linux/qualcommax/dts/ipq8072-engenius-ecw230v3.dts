@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause
+/*
+ * EnGenius ECW230v3 — cloud-managed AP, product_id 0x011c
+ *
+ * No hardware access; candidate support based on firmware analysis.
+ * Stock firmware defaults to config@hk08 but contains an identical
+ * fdt@hk07 DTB — using config@hk07 here (same board hardware as
+ * EWS377AP v3). Community testers: if bootipq selects hk08, change
+ * DEVICE_DTS_CONFIG in ipq807x.mk.
+ */
+
+#include "ipq8072-engenius-ap-hk07.dtsi"
+
+/ {
+	model = "EnGenius ECW230v3";
+	compatible = "engenius,ecw230v3", "qcom,ipq8074";
+};
+
+&wifi {
+	qcom,ath11k-calibration-variant = "EnGenius-ECW230v3";
+};

@@ -27,7 +27,9 @@ case "$FIRMWARE" in
 	dynalink,dl-wrx36|\
 	edgecore,eap102|\
 	edimax,cax1800|\
+	engenius,ecw230v3|\
 	engenius,ews377ap-v3|\
+	engenius,ews377-fit|\
 	linksys,mx5300|\
 	netgear,wax218|\
 	qnap,301w|\
