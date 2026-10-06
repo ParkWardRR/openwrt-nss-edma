@@ -1,11 +1,12 @@
 #!/bin/bash
 # Build each ap-hk07 SKU as its own single-profile build so each image ships
 # only its own ipq-wifi board file (multi-profile builds share one rootfs).
+# Usage: build-skus.sh [sku ...]   (default: all three)
 
 cd "${TREE:-$HOME/owrt-build-tree}" || exit 1
 TREE=$PWD
 OUT=${OUT:-$HOME/release}; rm -rf $OUT; mkdir -p $OUT
-for dev in ews377ap-v3 ecw230v3 ews377-fit; do
+for dev in ${@:-ews377ap-v3 ecw230v3 ews377-fit}; do
   sed -i -E "/^CONFIG_TARGET_(qualcommax_ipq807x_)?DEVICE_engenius_/d; /^CONFIG_TARGET_PROFILE=/d; /^CONFIG_DEFAULT_ipq-wifi-engenius/d; /^CONFIG_PACKAGE_ipq-wifi-engenius/d; /^# CONFIG_TARGET_PROFILE/d" .config
   { echo "CONFIG_TARGET_qualcommax_ipq807x_DEVICE_engenius_$dev=y"; echo "CONFIG_PACKAGE_ipq-wifi-engenius_$dev=y"; } >> .config
   make defconfig >/dev/null 2>&1
