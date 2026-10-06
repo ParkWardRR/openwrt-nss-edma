@@ -2,8 +2,10 @@
 /*
  * EnGenius EWS377-FIT — FIT-controller managed AP, product_id 0x012c
  *
- * No hardware access; candidate support based on firmware analysis.
- * Board data differs from EWS377AP v3 by only 56 bytes (0.04%).
+ * Hardware-validated 2026-10-06 on a real unit (NAND boot, ethernet, both
+ * radios, sysupgrade). Board data differs from EWS377AP v3 by only 56 bytes
+ * (0.04%). This unit ships u-boot 2.1.0 (512 MiB RAM, boot menu) and keeps
+ * its MAC in the u-boot env / cert partition, not in ART.
  */
 
 #include "ipq8072-engenius-ap-hk07.dtsi"
