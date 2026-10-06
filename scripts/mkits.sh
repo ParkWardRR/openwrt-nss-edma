@@ -196,6 +196,27 @@ OVCONFIGS=""
 	"
 done
 
+# A comma-separated -c list emits one configuration per name (the first is the
+# default), all pointing at the same kernel/fdt. Some OEM u-boot builds select the
+# FIT configuration by board name, and the right name differs between SKUs.
+CONFIGS=""
+DEFAULT_CONFIG=""
+OLDIFS=$IFS
+IFS=,
+for cfg in $CONFIG; do
+	[ -n "$DEFAULT_CONFIG" ] || DEFAULT_CONFIG=$cfg
+	CONFIGS="$CONFIGS
+		$cfg {
+			description = \"OpenWrt ${DEVICE}\";
+			kernel = \"kernel${REFERENCE_CHAR}1\";
+			${FDT_PROP}
+			${LOADABLES:+loadables = ${LOADABLES};}
+			${COMPATIBLE_PROP}
+			${INITRD_PROP}
+		};"
+done
+IFS=$OLDIFS
+
 # Create a default, fully populated DTS file
 DATA="/dts-v1/;
 
@@ -227,15 +248,8 @@ ${ROOTFS_NODE}
 	};
 
 	configurations {
-		default = \"${CONFIG}\";
-		${CONFIG} {
-			description = \"OpenWrt ${DEVICE}\";
-			kernel = \"kernel${REFERENCE_CHAR}1\";
-			${FDT_PROP}
-			${LOADABLES:+loadables = ${LOADABLES};}
-			${COMPATIBLE_PROP}
-			${INITRD_PROP}
-		};
+		default = \"${DEFAULT_CONFIG}\";
+		${CONFIGS}
 		${OVCONFIGS}
 	};
 };"

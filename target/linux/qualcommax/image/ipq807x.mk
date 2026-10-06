@@ -229,6 +229,10 @@ define Device/engenius_ecw230v3
 	$(call Device/engenius_ap-hk07)
 	DEVICE_MODEL := ECW230v3
 	DEVICE_DTS := ipq8072-engenius-ecw230v3
+	# ECW230v3 stock firmware (kernel 5.4) ships its FIT with default config@hk08;
+	# no ECW unit has been bench-tested, so carry both names and let the OEM
+	# u-boot pick (same kernel + DTB behind each).
+	DEVICE_DTS_CONFIG := config@hk07,config@hk08
 	DEVICE_PACKAGES += ipq-wifi-engenius_ecw230v3
 ifeq ($(IB),)
 ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
