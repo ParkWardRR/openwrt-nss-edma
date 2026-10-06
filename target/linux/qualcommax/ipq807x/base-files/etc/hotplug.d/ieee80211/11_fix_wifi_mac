@@ -18,6 +18,16 @@ case "$board" in
 		[ "$PHYNBR" = "0" ] && macaddr_add $(get_mac_label)  8 > /sys${DEVPATH}/macaddress
 		[ "$PHYNBR" = "1" ] && macaddr_add $(get_mac_label) 16 > /sys${DEVPATH}/macaddress
 		;;
+	engenius,ecw230v3|\
+	engenius,ews377ap-v3|\
+	engenius,ews377-fit)
+		# ART carries placeholder Wi-Fi MACs (00:03:7f:12:34:56..); derive
+		# stable ones from the unit's real MAC (u-boot env ethaddr, which
+		# the DTS exposes on the lan port via nvmem).
+		lan_mac=$(cat /sys/class/net/lan/address 2>/dev/null)
+		[ -n "$lan_mac" ] || exit 0
+		macaddr_add "$lan_mac" $((PHYNBR + 1)) > /sys${DEVPATH}/macaddress
+		;;
 	cmcc,rm2-6|\
 	zte,mf269)
 		[ "$PHYNBR" = "0" ] && macaddr_add $(get_mac_label) 2 > /sys${DEVPATH}/macaddress

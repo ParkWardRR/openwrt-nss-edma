@@ -9,6 +9,19 @@ UBI root mount (`ubi0` on the `rootfs` partition, 887/1 PEBs, factory bad block 
 root + `rootfs_data` UBIFS overlay → `root@OpenWrt:~#`. Ethernet up, both WiFi radios functional
 (tested WPA2, torn down), config **persists across real reboots**. Secure boot confirmed not fused.
 
+**🎉 EWS377-FIT VALIDATED ON HARDWARE (2026-10-06):** a real EWS377-FIT (a newer variant: 512 MiB RAM,
+u-boot 2.1.0 with a boot menu, MAC in the u-boot env instead of ART) was flashed over UART and runs
+persistently from NAND: ethernet (1G, ~940/856 Mbit/s), both radios (WPA2; 5 GHz HE80 ~390/440 Mbit/s),
+`sysupgrade -n` twice, config persistence. Full report: [`ews377ap-v3-port/ews377-fit-validation.md`](ews377ap-v3-port/ews377-fit-validation.md).
+Three things came out of it:
+1. **Per-SKU Wi-Fi board data** — a multi-profile build shares one rootfs, so every image shipped the EWS377AP v3
+   `board-2.bin` and the FIT radios never started (`variant=EnGenius-EWS377-FIT` not found). Build each SKU
+   separately: [`ews377ap-v3-port/build-skus.sh`](ews377ap-v3-port/build-skus.sh).
+2. **Wi-Fi MACs** — ART holds placeholder MACs on this unit; `11_fix_wifi_mac` now derives them from the LAN MAC
+   (u-boot env `ethaddr` via the existing nvmem binding), +1/+2.
+3. **Install docs** — the guide's single-shot 111 MiB `nand read` resets this u-boot (control FDT at `0x4a970ec0`);
+   read in chunks of at most 32 MiB.
+
 Build: kernel 6.18.44; artifacts `initramfs-uImage.itb`, `squashfs-sysupgrade.bin`, bare
 `squashfs-factory.ubi`, `squashfs-qsdk-factory.itb` (OEM-updater FIT), with `ath11k-firmware-ipq8074`
 + `ipq-wifi-engenius_ews377ap-v3` (board_id 0x290).
