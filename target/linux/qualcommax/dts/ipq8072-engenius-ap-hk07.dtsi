@@ -185,45 +185,19 @@
 };
 
 /* ---- NSS offload tunings from EnGenius OEM firmware v3.9.3.2 ---- */
-/* Source: hk07-oem-native-v3.9.3.2.dts lines 1168-1228 */
+/* The fork's ipq8074-nss.dtsi provides all 17+ offload flags and both
+ * cores, but uses generic clock frequencies (187/749/1690 MHz) and has
+ * Core 1 disabled.  Override to match the OEM-tuned values for IPQ8072A.
+ * Source: hk07-oem-native-v3.9.3.2.dts lines 1168-1228 */
 
-/* NSS Core 0: data-plane offloads — all 17 OEM flags enabled */
+/* NSS Core 0: data-plane — OEM clock frequencies */
 &nss0 {
-	qcom,low-frequency = <0x2ca1c800>;	/* 750 MHz */
-	qcom,mid-frequency = <0x59439000>;	/* 1500 MHz */
-	qcom,max-frequency = <0x64b54000>;	/* 1690 MHz — OEM max for IPQ8072A */
-
-	qcom,bridge-enabled;
-	qcom,ipv4-enabled;
-	qcom,ipv4-reasm-enabled;
-	qcom,ipv6-enabled;
-	qcom,ipv6-reasm-enabled;
-	qcom,wlanredirect-enabled;
-	qcom,tun6rd-enabled;
-	qcom,l2tpv2-enabled;
-	qcom,gre-enabled;
-	qcom,gre-redir-enabled;
-	qcom,gre-redir-mark-enabled;
-	qcom,map-t-enabled;
-	qcom,portid-enabled;
-	qcom,ppe-enabled;
-	qcom,pppoe-enabled;
-	qcom,pptp-enabled;
-	qcom,tunipip6-enabled;
-	qcom,shaping-enabled;
-	qcom,wlan-dataplane-offload-enabled;
-	qcom,vlan-enabled;
-	qcom,igs-enabled;
+	qcom,low-frequency = <0x2ca1c800>;	/* 750 MHz (fork default: 187 MHz) */
+	qcom,mid-frequency = <0x59439000>;	/* 1500 MHz (fork default: 749 MHz) */
+	qcom,max-frequency = <0x64b54000>;	/* 1690 MHz (fork default: 1690 MHz — same) */
 };
 
-/* NSS Core 1: crypto / security offloads */
+/* NSS Core 1: crypto/security — enable for EnGenius boards */
 &nss1 {
-	qcom,capwap-enabled;
-	qcom,dtls-enabled;
-	qcom,crypto-enabled;
-	qcom,ipsec-enabled;
-	qcom,qvpn-enabled;
-	qcom,pvxlan-enabled;
-	qcom,clmap-enabled;
-	qcom,rmnet_rx-enabled;
+	status = "okay";
 };
